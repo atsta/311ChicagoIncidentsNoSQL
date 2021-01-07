@@ -2,6 +2,7 @@ import csv
 import json
 import datetime
 import pandas as pd
+from faker import Faker
 import sys, getopt, pprint
 from pymongo import MongoClient
 
@@ -24,7 +25,10 @@ csv_file_titles = ["311-service-requests-abandoned-vehicles",
 
 db.incident.delete_many({})
 db.incident_details.delete_many({})
+db.citizen.delete_many({})
 
+fake = Faker()
+Faker.seed(0)
 
 def incident_details(row):
     details = {}
@@ -58,7 +62,14 @@ def location_field(row):
     loc_field['Latitude'] = row['Latitude']
     loc_field['Longitude'] = row['Longitude']
 
-    return loc_field
+    del row['Street Address']
+    del row['Zip Code']
+    del row['X Coordinate']
+    del row['Y Coordinate']
+    del row['Latitude']
+    del row['Longitude']
+
+    return (row, loc_field)
 
 def data_clean(row, fields, incident_type):
     if incident_type == "311-service-requests-pot-holes-reported":
@@ -66,13 +77,7 @@ def data_clean(row, fields, incident_type):
     if incident_type == "311-service-requests-street-lights-one-out":
         row['Type of Service Request'] = "Street Light Out"
 
-    row['Location'] = location_field(row)
-    del row['Street Address']
-    del row['Zip Code']
-    del row['X Coordinate']
-    del row['Y Coordinate']
-    del row['Latitude']
-    del row['Longitude']
+    (row, row['Location']) = location_field(row)
 
     if incident_type == "311-service-requests-rodent-baiting":
         del row['']
@@ -83,12 +88,12 @@ def data_clean(row, fields, incident_type):
 
     return row
 
+#incidents insert
 for title in csv_file_titles:
     count = 0
 
     csvfile = open(datapath + title + '.csv', 'r')
     reader = csv.DictReader(csvfile)
-
     headers = reader.fieldnames
 
     for row in reader:
@@ -104,3 +109,11 @@ for title in csv_file_titles:
             break
 
     print("Inserted " + str(count) + " incidents from " + title + " CSV file")
+
+#citizen insert
+n = 10
+for i in range(n):
+    citizen_info = {"name": fake.name(), "telephone": fake.phone_number(), "address": fake.address()}
+    result = db.citizen.insert_one(citizen_info)
+
+print("Inserted " + str(n) + " citizens using Faker")
