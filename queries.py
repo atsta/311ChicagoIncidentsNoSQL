@@ -9,10 +9,9 @@ db = mongo_client.NoSQL_311_Chicago_Incidents
 
 def query2(start_date, end_date, type):
     res = db.incident.aggregate([
-        {"$match": {"type_of_service_request": type}},
-        {"$match": {"$expr": {"$and": [{"$gte": ["$creation_date", {"$dateFromString": {"dateString": start_date}}]}, {"$lte": ["$creation_date", {"$dateFromString": {"dateString": end_date}}]}]}}},
-        {"$group": {"_id": {"type": "$type_of_service_request", "creation": "$creation_date"}, "totalRequests": {"$sum": 1}}},
-        {"$project": {"_id": 0, "type": "$_id.type", "creation_date": {"$dateToString": {"date": "$_id.creation"}}, "total_requests": "$totalRequests"}},
-        {"$sort": {"creation_date": 1}}
+        {"$group": {"_id": {"type": "$type"}, "total": {"$sum": 1}}},
+        {"$match": {"$expr": {"$eq":["$_id.type", "Abandoned Vehicle Complaint"]}}},
+        {"$match": {"$expr": {"$and": [{"$gte": ["$creation_date", {"$dateFromString": {"dateString": "2015-04-07"}}]}, {"$lte": ["$_id.creation_date",{"$dateFromString": {"dateString": "2019-04-30"}}]}]}}},
+        {"$project": {"creation_date": "$_id.creation_date", "total": "$total", "_id": 0}}
     ])
-    return json.dumps(list(result))
+    return json.dumps(list(res))

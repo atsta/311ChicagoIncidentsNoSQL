@@ -1,8 +1,7 @@
 from flask import Flask, jsonify, request
-
 from pymongo import MongoClient
-
 from bson.objectid import ObjectId
+import queries
 
 app = Flask(__name__)
 
@@ -21,8 +20,9 @@ def _query2():
     _type = _json['Type']
 
     print(_start_date, _end_date, _type)
+    res = queries.query2(_start_date, _end_date, _type)
 
-    return 'Hello World!'
+    return res
 
 
 

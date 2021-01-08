@@ -32,69 +32,73 @@ Faker.seed(0)
 
 def incident_details(row):
     details = {}
-    if 'Police District' in row:
-        details['Police District'] = row['Police District']
-        del row['Police District']
-    if 'Community Area' in row:
-        details['Community Area'] = row['Community Area']
-        del row['Community Area']
-    if 'Community Areas' in row:
-        details['Community Areas'] = row['Community Areas']
-        del row['Community Areas']
-    if 'Historical Wards' in row:
-        details['Historical Wards'] = row['Historical Wards']
-        del row['Historical Wards']
-    if 'Census Tracts' in row:
-        details['Census Tracts'] = row['Census Tracts']
-        del row['Census Tracts']
-    if 'Zip Codes' in row:
-        details['Zip Codes'] = row['Zip Codes']
-        del row['Zip Codes']
+    if 'police_district' in row:
+        details['police_district'] = row['police_district']
+        del row['police_district']
+    if 'community_area' in row:
+        details['community_area'] = row['community_area']
+        del row['community_area']
+    if 'community_areas' in row:
+        details['community_areas'] = row['community_areas']
+        del row['community_areas']
+    if 'historical_wards' in row:
+        details['historical_wards'] = row['historical_wards']
+        del row['historical_wards']
+    if 'census_tracts' in row:
+        details['census_tracts'] = row['census_tracts']
+        del row['census_tracts']
+    if 'zip_codes' in row:
+        details['zip_codes'] = row['zip_codes']
+        del row['zip_codes']
 
     return (row, details)
 
 def location_field(row):
     loc_field = {}
-    loc_field['Street Address'] = row['Street Address']
-    loc_field['Zip Code'] = row['Zip Code']
-    loc_field['X Coordinate'] = row['X Coordinate']
-    loc_field['Y Coordinate'] = row['Y Coordinate']
-    loc_field['Latitude'] = row['Latitude']
-    loc_field['Longitude'] = row['Longitude']
+    loc_field['street_address'] = row['street_address']
+    loc_field['zip_code'] = row['zip_code']
+    loc_field['x_coordinate'] = row['x_coordinate']
+    loc_field['y_coordinate'] = row['y_coordinate']
+    loc_field['latitude'] = row['latitude']
+    loc_field['longitude'] = row['lognitude']
 
-    del row['Street Address']
-    del row['Zip Code']
-    del row['X Coordinate']
-    del row['Y Coordinate']
-    del row['Latitude']
-    del row['Longitude']
+    del row['street_address']
+    del row['zip_code']
+    del row['x_coordinate']
+    del row['y_coordinate']
+    del row['latitude']
+    del row['lognitude']
 
     return (row, loc_field)
 
 def data_clean(row, fields, incident_type):
     if incident_type == "311-service-requests-pot-holes-reported":
-        row['Type of Service Request'] = "Pothole in Street"
+        row['type'] = "Pothole in Street"
     if incident_type == "311-service-requests-street-lights-one-out":
-        row['Type of Service Request'] = "Street Light Out"
+        row['type'] = "Street Light Out"
 
-    (row, row['Location']) = location_field(row)
+    (row, row['location']) = location_field(row)
 
     if incident_type == "311-service-requests-rodent-baiting":
         del row['']
 
-    row['Creation Date'] = datetime.datetime.strptime(row['Creation Date'], '%Y-%m-%dT%H:%M:%S.%f')
-    if row['Completion Date'] != "":
-        row['Completion Date'] = datetime.datetime.strptime(row['Completion Date'], '%Y-%m-%dT%H:%M:%S.%f')
+    row['creation_date'] = datetime.datetime.strptime(row['creation_date'], '%Y-%m-%dT%H:%M:%S.%f')
+    if row['completion_date'] != "":
+        row['completion_date'] = datetime.datetime.strptime(row['completion_date'], '%Y-%m-%dT%H:%M:%S.%f')
 
     return row
 
 #incidents insert
+uniq = []
 for title in csv_file_titles:
     count = 0
 
     csvfile = open(datapath + title + '.csv', 'r')
     reader = csv.DictReader(csvfile)
     headers = reader.fieldnames
+    for col in headers:
+        if col not in uniq:
+            uniq.append(col)
 
     for row in reader:
         if title == "311-service-requests-rodent-baiting":
@@ -102,7 +106,7 @@ for title in csv_file_titles:
                 continue
         (row, details) = incident_details(row)
         inc = db.incident.insert_one(data_clean(row, headers, title))
-        details['Incident_Id'] = format(inc.inserted_id)
+        details['incident_Id'] = format(inc.inserted_id)
         inc_details = db.incident_details.insert_one(details)
         count = count + 1
         if count > 5:
@@ -110,10 +114,12 @@ for title in csv_file_titles:
 
     print("Inserted " + str(count) + " incidents from " + title + " CSV file")
 
+print(uniq)
+
 #citizen insert
 n = 10
 for i in range(n):
-    citizen_info = {"name": fake.name(), "telephone": fake.phone_number(), "address": fake.address()}
+    citizen_info = {"name": fake.name(), "phone": fake.phone_number(), "address": fake.address()}
     result = db.citizen.insert_one(citizen_info)
 
 print("Inserted " + str(n) + " citizens using Faker")
