@@ -9,9 +9,13 @@ db = mongo_client.NoSQL_311_Chicago_Incidents
 
 def query2(start_date, end_date, type):
     res = db.incident.aggregate([
-        {"$group": {"_id": {"type": "$type"}, "total": {"$sum": 1}}},
-        {"$match": {"$expr": {"$eq":["$_id.type", "Abandoned Vehicle Complaint"]}}},
-        {"$match": {"$expr": {"$and": [{"$gte": ["$creation_date", {"$dateFromString": {"dateString": "2015-04-07"}}]}, {"$lte": ["$_id.creation_date",{"$dateFromString": {"dateString": "2019-04-30"}}]}]}}},
-        {"$project": {"creation_date": "$_id.creation_date", "total": "$total", "_id": 0}}
+        {"$match": {"type": type}},
+        {"$match": {"$expr": {"$and": [{"$gte": ["$creation_date", {"$dateFromString": {"dateString": start_date}}]},
+                                       {"$lte": ["$creation_date", {"$dateFromString": {"dateString": end_date}}]}]}}},
+        {"$group": {"_id": {"type": "$type", "creation_date": "$creation_date"},
+                    "totalRequests": {"$sum": 1}}},
+        {"$project": {"_id": 0, "creation_date": {"$dateToString": {"date": "$_id.creation_date"}}, "total_requests": "$totalRequests"}}
     ])
     return json.dumps(list(res))
+
+
