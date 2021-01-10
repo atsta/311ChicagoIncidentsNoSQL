@@ -41,5 +41,14 @@ def _query4():
     res = queries.query4(_type)
     return res
 
+@app.route('/query5', methods = ['GET'])
+def _query5():
+    _json = request.json
+    _start_date = _json['Start Date']
+    _end_date = _json['End Date']
+    res = queries.query5(_start_date, _end_date)
+    return res
+
+
 if __name__ == '__main__':
     app.run(debug=True)

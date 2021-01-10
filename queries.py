@@ -46,7 +46,18 @@ def query4(type):
         {"$match": {"type": type}},
         {"$group": {"_id": {"ward": "$ward"}, "count": {"$sum": 1}}},
         {"$sort": {"count": 1}},
-        {"$project": {"_id": 0, "ward": "$_id", "count": "$count"}},
+        {"$project": {"_id": 0, "ward": "$_id.ward", "count": "$count"}},
         {"$limit": 3}
     ])
     return json.dumps(list(res))
+
+def query5(start_date, end_date):
+    res = db.incident.aggregate([
+        {"$match": {"$expr": {"$and": [{"$ne": ["$completion_date", ""]},
+                                       {"$gte": ["$creation_date", {"$dateFromString": {"dateString": start_date}}]},
+                                        {"$lte": ["$creation_date", {"$dateFromString": {"dateString": end_date}}]}]}}},
+        {"$group": {"_id": {"type": "$type"}, "duration":{"$avg": {"$subtract": ["$completion_date", "$creation_date"]}}}},
+        {"$project": {"_id": 0, "type": "$_id.type", "average_duration":"$duration"}}
+    ])
+    return json.dumps(list(res))
+
