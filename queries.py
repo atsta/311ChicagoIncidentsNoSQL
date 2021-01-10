@@ -41,12 +41,12 @@ def query3(date):
     ])
     return json.dumps(list(res))
 
-def query4(date):
+def query4(type):
     res = db.incident.aggregate([
-        {"$match": {"$expr": {"$eq": ["$creation_date", {"$dateFromString": {"dateString": date}}]}}},
-        {"$group": {"_id": {"zip": "$location.zip_code", "type": "$type"}, "total_occurences": {"$sum": 1}}},
-        {"$sort": {"total_occurences": -1}},
-        {"$group": {"_id": "$_id.zip", "zip_total": {"$push": {"type": "$_id.type", "total_occurences": "$total_occurences"}}}},
-        {"$project": {"_id": 0, "zip_code": "$_id", "most_common": {"zip_total":{"$slice":["$zip_total", 0, 3]}}}}
+        {"$match": {"type": type}},
+        {"$group": {"_id": {"ward": "$ward"}, "count": {"$sum": 1}}},
+        {"$sort": {"count": 1}},
+        {"$project": {"_id": 0, "ward": "$_id", "count": "$count"}},
+        {"$limit": 3}
     ])
     return json.dumps(list(res))

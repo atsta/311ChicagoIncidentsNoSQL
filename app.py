@@ -34,6 +34,12 @@ def _query3():
     res = queries.query3(_date)
     return res
 
+@app.route('/query4', methods = ['GET'])
+def _query4():
+    _json = request.json
+    _type = _json['Type']
+    res = queries.query4(_type)
+    return res
 
 if __name__ == '__main__':
     app.run(debug=True)
