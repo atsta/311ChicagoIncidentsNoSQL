@@ -27,6 +27,12 @@ def _query2():
     res = queries.query2(_start_date, _end_date, _type)
     return res
 
+@app.route('/query3', methods = ['GET'])
+def _query3():
+    _json = request.json
+    _date = _json['Date']
+    res = queries.query3(_date)
+    return res
 
 
 if __name__ == '__main__':
