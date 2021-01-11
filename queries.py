@@ -61,3 +61,13 @@ def query5(start_date, end_date):
     ])
     return json.dumps(list(res))
 
+def query6(date, bottom, upper):
+    res = db.incident.aggregate([
+        {"$match": {"location.coords": {"$geoWithin": {"$box": [bottom, upper]}}}},
+        {"$match": {"$expr":  {"$eq": ["$creation_date", {"$dateFromString": {"dateString": date}}]}}},
+        {"$group": {"_id": {"type": "$type"}, "count": {"$sum": 1}}},
+        {"$sort": {"count": -1}},
+        {"$limit": 1},
+        {"$project": {"_id": 0, "most_common_type": "$_id.type", "occurrences": "$count"}}
+    ])
+    return json.dumps(list(res))

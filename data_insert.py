@@ -59,8 +59,13 @@ def location_field(row):
     loc_field['zip_code'] = row['zip_code']
     loc_field['x_coordinate'] = row['x_coordinate']
     loc_field['y_coordinate'] = row['y_coordinate']
-    loc_field['latitude'] = row['latitude']
-    loc_field['longitude'] = row['lognitude']
+    loc_field['coords'] =  {
+        "type" : "Point",
+		"coordinates" : [
+			float(row['lognitude']),
+			float(row['latitude'])
+		]
+	}
 
     del row['street_address']
     del row['zip_code']
