@@ -91,6 +91,8 @@ def data_clean(row, fields, incident_type):
     if row['completion_date'] != "":
         row['completion_date'] = datetime.datetime.strptime(row['completion_date'], '%Y-%m-%dT%H:%M:%S.%f')
 
+    row['upvotes'] = []
+
     return row
 
 #incidents insert
@@ -114,7 +116,7 @@ for title in csv_file_titles:
         details['incident_Id'] = format(inc.inserted_id)
         inc_details = db.incident_details.insert_one(details)
         count = count + 1
-        if count > 5:
+        if count > 15:
             break
 
     print("Inserted " + str(count) + " incidents from " + title + " CSV file")
@@ -124,7 +126,9 @@ print(uniq)
 #citizen insert
 n = 10
 for i in range(n):
-    citizen_info = {"name": fake.name(), "phone": fake.phone_number(), "address": fake.address()}
+    citizen_info = {"name": fake.name(), "phone": fake.phone_number(), "address": fake.address(), "upvotes": []}
     result = db.citizen.insert_one(citizen_info)
 
 print("Inserted " + str(n) + " citizens using Faker")
+
+#upvotes insert
