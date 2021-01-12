@@ -65,5 +65,10 @@ def _query7():
     res = queries.query7(_date)
     return res
 
+@app.route('/query8', methods = ['GET'])
+def _query8():
+    res = queries.query8()
+    return res
+
 if __name__ == '__main__':
     app.run(debug=True)

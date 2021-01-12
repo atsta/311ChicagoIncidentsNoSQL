@@ -78,3 +78,11 @@ def query7(date):
         {"$limit": 50}
     ])
     return json.dumps(list(res))
+
+def query8():
+    res = db.citizen.aggregate([
+        {"$project": {"_id": 0, "name":"$name", "total_upvotes": {"$size": "$upvotes"}}},
+        {"$sort": {"total_upvotes": -1}},
+        {"$limit": 50}
+    ])
+    return json.dumps(list(res))
