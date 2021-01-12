@@ -58,5 +58,12 @@ def _query6():
     res = queries.query6(_date, _bottom_limit, _upper_limit)
     return res
 
+@app.route('/query7', methods = ['GET'])
+def _query7():
+    _json = request.json
+    _date = _json['Date']
+    res = queries.query7(_date)
+    return res
+
 if __name__ == '__main__':
     app.run(debug=True)

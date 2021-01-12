@@ -69,3 +69,12 @@ def query6(date, bottom, upper):
         {"$project": {"_id": 0, "most_common_type": "$_id.type", "occurrences": "$count"}}
     ])
     return json.dumps(list(res))
+
+def query7(date):
+    res = db.incident.aggregate([
+        {"$match": {"$expr": {"$eq": ["$creation_date", {"$dateFromString": {"dateString": date}}]}}},
+        {"$project": {"_id": {"$toString": "$_id"}, "total_upvotes": {"$size": "$upvotes"}}},
+        {"$sort": {"total_upvotes": -1}},
+        {"$limit": 50}
+    ])
+    return json.dumps(list(res))

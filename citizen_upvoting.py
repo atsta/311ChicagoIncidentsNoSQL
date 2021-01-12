@@ -15,8 +15,7 @@ while upvoted_incidents < number_of_incidents/3:
     for i in range(len(citizens)):
         upvote_dict = {
             'name': citizens[i]['name'],
-            'phone': citizens[i]['phone'],
-            'citizen_id': citizens[i]['_id']
+            'phone': citizens[i]['phone']
         }
         random_incident = list(db.incident.aggregate([{"$sample": {"size": 1}}]))
 

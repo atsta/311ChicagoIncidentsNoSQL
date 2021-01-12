@@ -131,4 +131,3 @@ for i in range(n):
 
 print("Inserted " + str(n) + " citizens using Faker")
 
-#upvotes insert
