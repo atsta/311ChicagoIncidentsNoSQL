@@ -70,5 +70,12 @@ def _query8():
     res = queries.query8()
     return res
 
+@app.route('/query11', methods = ['GET'])
+def _query11():
+    _json = request.json
+    _name = _json['Name']
+    res = queries.query11(_name)
+    return res
+
 if __name__ == '__main__':
     app.run(debug=True)

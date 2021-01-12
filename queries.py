@@ -86,3 +86,11 @@ def query8():
         {"$limit": 50}
     ])
     return json.dumps(list(res))
+
+def query11(_name):
+    res = db.incident.aggregate([
+        {"$match": {"$expr": {"$gte": [{"$size": "$upvotes"}, 1]}}},
+        {"$project": {"_id": 0, "upvoted": {"$filter": {"input": "$upvotes","as": "upvote", "cond": {"$eq": ["$$upvote.name", _name]}}}, "ward": "$_id.ward"}},
+        {"$match": {"$expr": {"$gte": [{"$size": "$upvoted"}, 1]}}}
+    ])
+    return json.dumps(list(res))
