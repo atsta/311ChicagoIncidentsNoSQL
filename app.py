@@ -87,5 +87,28 @@ def _query11():
     res = queries.query11(_name)
     return res
 
+@app.errorhandler(404)
+def not_found(error=None):
+    resp = jsonify("Not Found" + request.url)
+    resp.status_code = 404
+    return resp
+
+@app.route('/insert', methods = ['POST'])
+def _insert_incident():
+    _json = request.json
+    _creation_date = _json['creation_date']
+    _status = _json['status']
+    _completion_date = _json['completion_date']
+    _srn = _json['srn']
+    _type = _json['type']
+
+    if _creation_date and _type and _srn and request.method == 'POST':
+        id = db.incident.insert_one(_json)
+        resp = jsonify("New incident of type " + _type + " added successfully")
+        return resp
+    else:
+        return not_found()
+
 if __name__ == '__main__':
     app.run(debug=True)
+
