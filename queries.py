@@ -24,9 +24,9 @@ def query2(start_date, end_date, type):
                                        {"$lte": ["$creation_date", {"$dateFromString": {"dateString": end_date}}]}]}}},
         {"$group": {"_id": {"type": "$type", "creation_date": "$creation_date"},
                     "totalRequests": {"$sum": 1}}},
-        {"$project": {"_id": 0, "creation_date": {"$dateToString": {"date": "$_id.creation_date"}}, "total_requests": "$totalRequests"}}
+        {"$project": {"_id": 0, "creation_date": {"$dateToString": {"date": "$_id.creation_date"}},
+                      "total_requests": "$totalRequests"}}
     ])
-
     return json.dumps(list(res))
 
 def query3(date):
@@ -84,6 +84,19 @@ def query8():
         {"$project": {"_id": 0, "name":"$name", "total_upvotes": {"$size": "$upvotes"}}},
         {"$sort": {"total_upvotes": -1}},
         {"$limit": 50}
+    ])
+    return json.dumps(list(res))
+
+def query9():
+    res = db.incident.aggregate([
+        {"$match": {"$expr": {"$gte": [{"$size": "$upvotes"}, 1]}}},
+        {"$project": {"_id": 1, "ward": 1, "upvotes": 1}},
+        {"$unwind": "$upvotes"},
+        {"$group": {"_id": {"cit": {"$concat": ["$upvotes.name"," - ","$upvotes.phone"]}, "ward": "$ward"}}},
+        {"$group": {"_id": "$_id.cit", "upvoted": {"$sum": 1}}},
+        {"$sort": {"upvoted": -1}},
+        {"$limit": 50},
+        {"$project": {"_id": 0, "citizen": "$_id", "upvoted_wards": "$upvoted"}}
     ])
     return json.dumps(list(res))
 

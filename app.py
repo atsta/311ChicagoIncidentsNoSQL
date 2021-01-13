@@ -70,6 +70,11 @@ def _query8():
     res = queries.query8()
     return res
 
+@app.route('/query9', methods = ['GET'])
+def _query9():
+    res = queries.query9()
+    return res
+
 @app.route('/query11', methods = ['GET'])
 def _query11():
     _json = request.json
