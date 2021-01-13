@@ -100,6 +100,18 @@ def query9():
     ])
     return json.dumps(list(res))
 
+def query10():
+    res = db.incident.aggregate([
+        {"$match": {"$expr": {"$gte": [{"$size": "$upvotes"}, 1]}}},
+        {"$unwind": "$upvotes"},
+        {"$group": {"_id": {"tel": "$upvotes.phone", "cit_name": "$upvotes.name"}}},
+        {"$group": {"_id": "$_id.cit_name", "same_tel": {"$sum": 1}}},
+        {"$match": {"$expr": {"$gt": ["$same_tel", 1]}}},
+        {"$project": {"_id": {"$toString": "$_id"},  "names_with_same_tel": "$upvoted"}}
+
+    ])
+    return json.dumps(list(res))
+
 def query11(_name):
     res = db.incident.aggregate([
         {"$match": {"$expr": {"$gte": [{"$size": "$upvotes"}, 1]}}},
