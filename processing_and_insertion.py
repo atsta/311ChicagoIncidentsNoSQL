@@ -112,7 +112,7 @@ def batch_insert():
             details['incident_Id'] = format(inc.inserted_id)
             inc_details = db.incident_details.insert_one(details)
             count = count + 1
-            if count > 1:
+            if count > 15:
                 break
 
         print("Inserted " + str(count) + " incidents from " + title + " CSV file")

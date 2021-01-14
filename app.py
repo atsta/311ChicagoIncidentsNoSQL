@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from insert_new_incident import insert_new
+from cast_upvote import cast_upvote
 import queries
 
 app = Flask(__name__)
@@ -103,6 +104,16 @@ def _insert_incident():
         insert_new(_json)
         resp = jsonify("New incident of type " + _type + " added successfully")
         return resp
+    else:
+        return not_found()
+
+@app.route('/cast_upvote/<incident_id>', methods = ['POST'])
+def _cast_upvote(incident_id):
+    _json = request.json
+    _citizen_id = _json['citizen_id']
+
+    if _citizen_id and request.method == 'POST':
+        return cast_upvote(_citizen_id, incident_id)
     else:
         return not_found()
 
