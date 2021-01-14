@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from pymongo import MongoClient
 from bson.objectid import ObjectId
+from insert_new_incident import insert_new
 import queries
 
 app = Flask(__name__)
@@ -89,21 +90,17 @@ def _query11():
 
 @app.errorhandler(404)
 def not_found(error=None):
-    resp = jsonify("Not Found" + request.url)
+    resp = jsonify("Not Found " + request.url)
     resp.status_code = 404
     return resp
 
 @app.route('/insert', methods = ['POST'])
 def _insert_incident():
     _json = request.json
-    _creation_date = _json['creation_date']
-    _status = _json['status']
-    _completion_date = _json['completion_date']
-    _srn = _json['srn']
     _type = _json['type']
 
-    if _creation_date and _type and _srn and request.method == 'POST':
-        id = db.incident.insert_one(_json)
+    if _type and request.method == 'POST':
+        insert_new(_json)
         resp = jsonify("New incident of type " + _type + " added successfully")
         return resp
     else:

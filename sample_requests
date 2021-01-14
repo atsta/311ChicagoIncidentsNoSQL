@@ -1,0 +1,26 @@
+---Insert New----
+
+{
+    "type": "Tree Trim",
+    "creation_date": "2015-04-08", 
+    "status": "Open",
+    "completion_date": "",
+    "srn": "15-01207498",
+    "location_of_trees": "Parkway",
+    "street_address": "6242 N LAKEWOOD AVE",
+    "zip_code": 60660, 
+    "x_coordinate": 1166487.26296879,
+    "y_coordinate": 1941590.58096917,
+    "ward": 48,
+    "police_district": 24,
+    "community_area": 77,
+	"latitude": 41.9952998749052,
+    "lognitude": -87.6629327958855, 	
+    "location": {"latitude": 41.995299874905, "longitude": -87.662932795885}, 
+    "historical_wards": 40,
+    "zip_codes": 4451,
+    "community_areas": 76, 	
+    "census_tracts": 536,	
+    "wards": 16 
+}
+

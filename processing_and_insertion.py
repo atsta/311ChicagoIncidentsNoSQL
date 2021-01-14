@@ -1,7 +1,6 @@
 import csv
 import json
 import datetime
-import pandas as pd
 from faker import Faker
 import sys, getopt, pprint
 from pymongo import MongoClient
@@ -22,13 +21,6 @@ csv_file_titles = ["311-service-requests-abandoned-vehicles",
                     "311-service-requests-street-lights-one-out",
                     "311-service-requests-tree-debris",
                     "311-service-requests-tree-trims"]
-
-db.incident.delete_many({})
-db.incident_details.delete_many({})
-db.citizen.delete_many({})
-
-fake = Faker()
-Faker.seed(0)
 
 def incident_details(row):
     details = {}
@@ -95,39 +87,43 @@ def data_clean(row, fields, incident_type):
 
     return row
 
-#incidents insert
-uniq = []
-for title in csv_file_titles:
-    count = 0
+def batch_insert():
+    db.incident.delete_many({})
+    db.incident_details.delete_many({})
+    db.citizen.delete_many({})
 
-    csvfile = open(datapath + title + '.csv', 'r')
-    reader = csv.DictReader(csvfile)
-    headers = reader.fieldnames
-    for col in headers:
-        if col not in uniq:
-            uniq.append(col)
+    fake = Faker()
+    Faker.seed(0)
 
-    for row in reader:
-        if title == "311-service-requests-rodent-baiting":
-            if row[''] != "":
-                continue
-        (row, details) = incident_details(row)
-        inc = db.incident.insert_one(data_clean(row, headers, title))
-        details['incident_Id'] = format(inc.inserted_id)
-        inc_details = db.incident_details.insert_one(details)
-        count = count + 1
-        if count > 15:
-            break
+    #incidents insert
+    for title in csv_file_titles:
+        count = 0
 
-    print("Inserted " + str(count) + " incidents from " + title + " CSV file")
+        csvfile = open(datapath + title + '.csv', 'r')
+        reader = csv.DictReader(csvfile)
+        headers = reader.fieldnames
 
-print(uniq)
+        for row in reader:
+            if title == "311-service-requests-rodent-baiting":
+                if row[''] != "":
+                    continue
+            (row, details) = incident_details(row)
+            inc = db.incident.insert_one(data_clean(row, headers, title))
+            details['incident_Id'] = format(inc.inserted_id)
+            inc_details = db.incident_details.insert_one(details)
+            count = count + 1
+            if count > 1:
+                break
 
-#citizen insert
-n = 10
-for i in range(n):
-    citizen_info = {"name": fake.name(), "phone": fake.phone_number(), "address": fake.address(), "upvotes": []}
-    result = db.citizen.insert_one(citizen_info)
+        print("Inserted " + str(count) + " incidents from " + title + " CSV file")
 
-print("Inserted " + str(n) + " citizens using Faker")
+    #citizen insert
+    n = 10
+    for i in range(n):
+        citizen_info = {"name": fake.name(), "phone": fake.phone_number(), "address": fake.address(), "upvotes": []}
+        result = db.citizen.insert_one(citizen_info)
 
+    print("Inserted " + str(n) + " citizens using Faker")
+
+if __name__ == '__main__':
+    batch_insert()
