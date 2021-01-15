@@ -102,20 +102,21 @@ def query9():
 
 def query10():
     res = db.citizen.aggregate([
-        {"$group": {"_id": "$phone", "citizens": {"$sum": 1}, "incidents": {"$push": "$upvotes"}}},
+        {"$group": {"_id": "$phone", "citizens": {"$sum": 1}, "upvotes": {"$push":"$upvotes"}}},
         {"$match": {"citizens": {"$gte": 2}}},
-        {"$unwind": "$incidents"},
-        {"$unwind": "$incidents"},
-        {"$group": {"_id": {"phone": "$_id", "incidents": "$incidents"}, "same_tel": {"$sum": 1}}},
+        {"$unwind": "$upvotes"},
+        {"$unwind": "$upvotes"},
+        {"$group": {"_id": {"phone": "$_id", "incidents": "$upvotes"}, "same_tel": {"$sum": 1}}},
         {"$match": {"same_tel": {"$gte": 2}}},
         {"$project": {"_id": 0, "incident_id": {"$toString": "$_id.incidents"}}}
     ])
     return json.dumps(list(res))
 
 def query11(_name):
-    res = db.incident.aggregate([
-        {"$match": {"$expr": {"$gte": [{"$size": "$upvotes"}, 1]}}},
-        {"$project": {"_id": 0, "upvoted": {"$filter": {"input": "$upvotes","as": "upvote", "cond": {"$eq": ["$$upvote.name", _name]}}}, "ward": "$_id.ward"}},
-        {"$match": {"$expr": {"$gte": [{"$size": "$upvoted"}, 1]}}}
+    res = db.citizen.aggregate([
+        {"$match": {"name": _name}},
+        {"$lookup": {"from": "incident", "localField": "upvotes", "foreignField": "_id", "as": "upvotes"}},
+        {"$project": {"_id": 0,"wards": "$upvotes.ward"}}
     ])
     return json.dumps(list(res))
+
