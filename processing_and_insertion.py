@@ -45,6 +45,12 @@ def incident_details(row):
 
     return (row, details)
 
+def try_float(v):
+   try:
+       return float(v)
+   except Exception:
+       return None
+
 def location_field(row):
     loc_field = {}
     loc_field['street_address'] = row['street_address']
@@ -54,8 +60,8 @@ def location_field(row):
     loc_field['coords'] =  {
         "type" : "Point",
 		"coordinates" : [
-			float(row['lognitude']),
-			float(row['latitude'])
+			try_float(row['lognitude']),
+			try_float(row['latitude'])
 		]
 	}
 
@@ -88,9 +94,9 @@ def data_clean(row, fields, incident_type):
     return row
 
 def batch_insert():
-    db.incident.delete_many({})
-    db.incident_details.delete_many({})
-    db.citizen.delete_many({})
+    #db.incident.delete_many({})
+    #db.incident_details.delete_many({})
+    #db.citizen.delete_many({})
 
     fake = Faker()
     Faker.seed(0)
@@ -112,18 +118,20 @@ def batch_insert():
             details['incident_Id'] = format(inc.inserted_id)
             inc_details = db.incident_details.insert_one(details)
             count = count + 1
-            if count > 15:
-                break
+            #if count > 15:
+             #   break
 
         print("Inserted " + str(count) + " incidents from " + title + " CSV file")
 
     #citizen insert
-    n = 10
+    n = 8000
     for i in range(n):
         citizen_info = {"name": fake.name(), "phone": fake.phone_number(), "address": fake.address(), "upvotes": []}
         result = db.citizen.insert_one(citizen_info)
 
     print("Inserted " + str(n) + " citizens using Faker")
+
+
 
 if __name__ == '__main__':
     batch_insert()

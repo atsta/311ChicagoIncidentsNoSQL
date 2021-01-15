@@ -10,11 +10,9 @@ def query1(start_date, end_date):
         {"$match": {"$expr": {"$and": [{"$gte": ["$creation_date", {"$dateFromString": {"dateString": start_date}}]},
                                        {"$lte": ["$creation_date", {"$dateFromString": {"dateString": end_date}}]}]}}},
         {"$group": {"_id": {"type":"$type", "creation_date": "$creation_date"}, "count": {"$sum": 1}}},
-
-        {"$project": {"_id": 0, "creation_date": {"$dateToString": {"date": "$_id.creation_date"}}, "type": "$_id.type", "count": "$count"}},
-        {"$sort": {"count": -1}}
+        {"$sort": {"count": -1}},
+        {"$project": {"_id": 0, "creation_date": {"$dateToString": {"date": "$_id.creation_date"}}, "type": "$_id.type", "count": "$count"}}
     ])
-
     return json.dumps(list(res))
 
 def query2(start_date, end_date, type):
@@ -34,7 +32,7 @@ def query3(date):
         {"$match": {"$expr": {"$eq": ["$creation_date", {"$dateFromString": {"dateString": date}}]}}},
         {"$group": {"_id": {"zip": "$location.zip_code", "type": "$type"}, "total_occurences": {"$sum": 1}}},
         {"$sort": {"total_occurences": -1}},
-        {"$group": {"_id": "$_id.zip", "zip_total": {"$push": {"type": "$_id.type", "total_occurences": "$total_occurences"}}}},
+        {"$group": {"_id": "$_id.zip", "zip_total": {"$push": {"type": "$_id.type"}}}},
         {"$project": {"_id": 0, "zip_code": "$_id", "most_common": {"zip_total":{"$slice":["$zip_total", 0, 3]}}}}
     ])
     return json.dumps(list(res))
@@ -44,8 +42,8 @@ def query4(type):
         {"$match": {"type": type}},
         {"$group": {"_id": {"ward": "$ward"}, "count": {"$sum": 1}}},
         {"$sort": {"count": 1}},
-        {"$project": {"_id": 0, "ward": "$_id.ward", "count": "$count"}},
-        {"$limit": 3}
+        {"$limit": 3},
+        {"$project": {"_id": 0, "ward": "$_id.ward"}}
     ])
     return json.dumps(list(res))
 
@@ -66,7 +64,7 @@ def query6(date, bottom, upper):
         {"$group": {"_id": {"type": "$type"}, "count": {"$sum": 1}}},
         {"$sort": {"count": -1}},
         {"$limit": 1},
-        {"$project": {"_id": 0, "most_common_type": "$_id.type", "occurrences": "$count"}}
+        {"$project": {"_id": 0, "most_common_type": "$_id.type"}}
     ])
     return json.dumps(list(res))
 
@@ -96,7 +94,7 @@ def query9():
         {"$group": {"_id": "$_id.cit", "upvoted": {"$sum": 1}}},
         {"$sort": {"upvoted": -1}},
         {"$limit": 50},
-        {"$project": {"_id": 0, "citizen": "$_id", "upvoted_wards": "$upvoted"}}
+        {"$project": {"_id": 0, "citizen": "$_id"}}
     ])
     return json.dumps(list(res))
 
