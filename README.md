@@ -8,4 +8,4 @@ Citizens can upvote an existing incident, to highlight its importance. Any type 
 
 # Implementation
 
-Fask Framework, MongoDB
+Flask Framework, MongoDB
