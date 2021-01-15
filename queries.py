@@ -102,15 +102,15 @@ def query9():
 
 def query10():
     res = db.citizen.aggregate([
-        {"$group": {"_id": "$phone", "upvotes": {"$push": "$upvotes"}}},
-        {"$unwind": "$upvotes" },
-        {"$group": {"_id": {"phone":"$_id", "upvotes": "$upvotes"}, "same_tel": {"$sum": 1}}},
+        {"$group": {"_id": "$phone", "citizens": {"$sum": 1}, "incidents": {"$push": "$upvotes"}}},
+        {"$match": {"citizens": {"$gte": 2}}},
+        {"$unwind": "$incidents"},
+        {"$unwind": "$incidents"},
+        {"$group": {"_id": {"phone": "$_id", "incidents": "$incidents"}, "same_tel": {"$sum": 1}}},
         {"$match": {"same_tel": {"$gte": 2}}},
-        {"$project": {"_id": 0, "incident_id": {"$toString": "$_id.upvotes"}}}
+        {"$project": {"_id": 0, "incident_id": {"$toString": "$_id.incidents"}}}
     ])
     return json.dumps(list(res))
-
-
 
 def query11(_name):
     res = db.incident.aggregate([
